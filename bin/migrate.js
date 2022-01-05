@@ -10,10 +10,16 @@ const Migrate = require('../src');
     .option('-s, --setup', 'Setup data migrations')
     .option('-d, --dir [path]', 'Path to data migrations directory', './datamigrations')
     .option('-g, --database [path]', 'Database to run migrations for')
+    .option('-n, --newfile [path] [name]', 'Create new templated migration script in (sub)directory. Ex: panda-api add_new_column')
     .parse(process.argv);
 
   if (program.setup) {
     return Migrate.setup(program.dir);
+  }
+
+  if (program.newfile) {
+    console.log(program)
+    return Migrate.newfile(program.dir + '/' + program.newfile, program.args[0]);  
   }
 
   // Configure migrate instance

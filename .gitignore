@@ -3,6 +3,6 @@
 .nyc_output
 build
 coverage
-datamigrations
+#datamigrations
 logs
 node_modules

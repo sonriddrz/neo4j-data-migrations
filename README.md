@@ -8,8 +8,6 @@ Inspired by (https://south.readthedocs.io/en/latest/)
 
 Neo4j version 4.
 
-Look at version 1.x for usage with neo4j version 3.
-
 # Installation
 
 Install package:
@@ -20,7 +18,7 @@ Setup reference migration directory structure:
 
 `neo4j-data-migrate --setup`
 
-This will add a `datamigrations` directory to the current working directory. Inside, a `sample` app directory is added with an example migration script.
+This will add a `datamigrations` directory to the current working directory. 
 
 A connection is made to the neo4j database by means of the driver from the `neo4j-driver`. The configuration is stored in `datamigrations/configuration.js`.
 
@@ -55,11 +53,22 @@ Note that, if the system has already migrated past the specified migration, it w
 The following options are available to change behaviour of the migration tool:
 
 - `-d, --dir [path]` Path to the migrations directory.
-- `-g, --databasse [name]` Name of database to run migrations for.
+- `-g, --database [name]` Name of database to run migrations for.
 
 # Adding migrations
 
-If you want to add a data migration script, add a `.js` file with the appropriate prefix in the `datamigrations` and app (sub-)directory. You need to keep track of the increment of the prefix to ensure correct migration order.
+If you want to add a data migration script, run the following command:
+
+`neo4j-data-migration --newfile myapp add_new_column`
+
+where the following arguments are required:
+
+- `-n, --newfile [path] [name]` Create new templated migration script in (sub-)directory.
+
+A newly created templated migration script will have a datetime prefix along with the name that was provided.
+
+Example: `20220104230007_add_another_column.js`
+
 
 ## Migration format
 
@@ -77,7 +86,7 @@ module.exports = {
   name: 'Add users',
   forward: async (driver) => {
     driver.session({
-      database: 'movies',
+      database: 'neo4j',
     });
     await session.run(
       'CREATE (user:User {name: {name}, age: {age}})',
@@ -87,7 +96,7 @@ module.exports = {
   },
   backward: async (driver) => {
     driver.session({
-      database: 'movies',
+      database: 'neo4j',
     });
     await session.run(
       'MATCH (user:User {name: {name}}) DELETE user',
@@ -124,6 +133,8 @@ Migrate.close();
 
 MIT
 
-# Author
+# Original Author & Git Repo
 
 Remco Hendriks, ABN AMRO Bank 2019.
+
+(github.com/abnamrocoesd/neo4j-data-migrations.git)

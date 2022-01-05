@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
+const timestamp = require('./util/timestamp');
 
 const FILE_NAME_REGEX = /^(\d+)_\S+\.js$/;
 
@@ -12,6 +13,7 @@ const FILE_NAME_REGEX = /^(\d+)_\S+\.js$/;
  * @returns object with keys: app, migration.
  */
 async function migrationStatus(driver, appName, database) {
+
   let migrationHistory;
   try {
     const session = driver.session({database});
@@ -127,6 +129,7 @@ function loadFile(filePath) {
  */
 function Migrate() {
   this.DEFAULT_CONFIG_PATH = path.join(__dirname, 'defaults', 'default.configuration.js');
+  this.DEFAULT_MIGRATION_PATH = path.join(__dirname, 'defaults', 'default.migration.js');
   this.configPath = '';
   this.driver = false;
 }
@@ -149,6 +152,31 @@ Migrate.prototype.setup = function (dir) {
   fs.copyFileSync(this.DEFAULT_CONFIG_PATH, path.join(dir, 'configuration.js'));
   console.info(`Added migrations directory and default configuration at ${dir}`);
   return true;
+};
+
+/**
+ * Sets up a new migration file in the migration (sub)-directory
+ * @param {String} dir path to migrations directory
+ * @param {String} name name of the migration script
+ * @returns {bool}
+ */
+ Migrate.prototype.newfile = function (dir, name) {
+  assert.ok(dir);
+  assert.ok(name);
+
+  console.info('Add new migration file');
+  if (fs.existsSync(dir)) {
+
+    fileName = timestamp.yyyymmddhhmmss() + '_' + name + '.js';
+
+    fs.copyFileSync(this.DEFAULT_MIGRATION_PATH, path.join(dir, fileName));
+    console.info(`Added new migration file to ${dir}`);
+    return true;
+
+  }
+
+  console.error(`Directory ${dir} doesn't exist. Please run setup script. Exiting.`);
+  return false;
 };
 
 /**
@@ -176,7 +204,7 @@ Migrate.prototype.configure = function (dir, database) {
 
   this.configPath = dir;
   this.apps = readDirs(dir);
-  this.database = database;
+  this.database = database || 'neo4j';
   return true;
 };
 
